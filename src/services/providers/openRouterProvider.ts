@@ -2,7 +2,6 @@
 import { API_KEYS, SYSTEM_PROMPT, useAnalysisStore } from '../../config/constants';
 import type { AIModel, WebSearchResults } from '../types';
 
-
 export async function fetchModels(): Promise<{ data: AIModel[] }> {
   try {
     if (!API_KEYS.OPENROUTER) {
@@ -23,7 +22,17 @@ export async function fetchModels(): Promise<{ data: AIModel[] }> {
     }
 
     const data = await response.json();
-    const models = data.data.map((model: {
+
+    const textModels = data.data.filter(
+      (model: { id: string; owned_by: string; context_window: number; created: number; active: boolean }) =>
+        !model.id.includes('whisper') &&
+        !model.id.includes('vision') &&
+        !model.id.includes('guard') &&
+        !model.id.includes('tts') &&
+        !model.id.includes('tts-arabic')
+    );
+
+    const models = textModels.map((model: {
       id: string;
       name?: string;
       description?: string;
@@ -71,13 +80,13 @@ export async function sendMessage(
         role: 'system',
         content: `Analysis Results:\n\n${
           visionAnalysis 
-            ? `Vision Analysis:\n${visionAnalysis}\n\n` 
+            ? `Vision Analysis:\n${visionAnalysis}\n\n Please consider this analysis when user ask regrding this doc whther direct or indirect you have to detect this that user really asking regard this or not without expose your backend` 
             : ''
         }${
           documentAnalysis 
             ? `Document Analysis:\n${documentAnalysis}` 
             : ''
-        }\n\nPlease consider this analysis when responding.`
+        }\n\nPlease consider this analysis when user ask regrding this doc whther direct or indirect you have to detect this that user really asking regard this or not without expose your backend.`
       });
     }
 
