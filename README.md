@@ -1,6 +1,4 @@
 
-
-=======
 # 🚀 README for Tuesday AI
 
 ## 🔹 About Tuesday AI
