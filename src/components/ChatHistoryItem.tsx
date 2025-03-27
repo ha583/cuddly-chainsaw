@@ -81,7 +81,7 @@ export const ChatHistoryItem: React.FC<ChatHistoryItemProps> = ({ session, onSel
   const handleDeleteSession = async () => {
     try {
       // Navigate away first to prevent UI issues
-      navigate('/chat');
+      navigate('/');
       
       const { error } = await deleteChatSession(session.id);
       if (error) {
