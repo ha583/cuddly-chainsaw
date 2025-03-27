@@ -6,7 +6,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { toast } from "@/hooks/use-toast";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { supabase } from '@/integrations/supabase/client';
-import { providers, fetchModels,} from '@/services/aiProvider';
+import { providers, fetchModels } from '@/services/aiProvider';
 import { Input } from "@/components/ui/input";
 
 
@@ -37,7 +37,10 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [userAvatar, setUserAvatar] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
+   // Add this at the top of your component with other state declarations
+  const prevProviderRef = React.useRef<string | null>(null);
   const [profileFetchAttempts, setProfileFetchAttempts] = useState(0);
+  const [defaultsInitialized, setDefaultsInitialized] = useState(false);
 
   // Get user initials
   const getUserInitials = (name: string): string => {
@@ -82,53 +85,68 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
     debouncedSearch(query);
   };
 
-  // Handle provider change with model reset
+  // Handle provider change
   const handleProviderChange = (newProvider: string) => {
-    onProviderChange(newProvider);
-    onModelChange(""); // Reset model when provider changes
+    if (newProvider !== provider) {
+      onProviderChange(newProvider);
+    }
   };
 
-  // Initialize with default provider if none is selected
+  // Initialize defaults on component mount
   useEffect(() => {
-    if (!provider && providers.length > 0) {
-      onProviderChange(providers[0].id);
-    }
-  }, [provider, onProviderChange]);
- 
-  // Load models when provider changes
-  useEffect(() => {
-    const loadModels = async () => {
-      if (!provider) return; // Don't fetch if no provider is selected
-      
-      setIsLoading(true);
-      try {
-        // Fetch models dynamically from the provider
-        const { data: models } = await fetchModels(provider);
-        
-        setAvailableModels(models);
-        setFilteredModels(models);
-        
-        // If we don't have a model selected yet and models are available, select the first one
-        if ((!model || model === "") && models.length > 0) {
-          onModelChange(models[0].id);
-        }
-      } catch (error) {
-        toast({
-          title: "Failed to load models",
-          description: "Could not load models for the selected provider",
-          variant: "destructive"
-        });
-        
-        setAvailableModels([]);
-        setFilteredModels([]);
-      } finally {
-        setIsLoading(false);
+    if (!defaultsInitialized && providers.length > 0) {
+      const defaultProvider = provider || providers[0].id;
+      if (!provider) {
+        onProviderChange(defaultProvider);
       }
-    };
-    
-    loadModels();
-  }, [provider, model, onModelChange]);
-  
+      setDefaultsInitialized(true);
+    }
+  }, [defaultsInitialized, provider, onProviderChange]);
+
+
+    useEffect(() => {
+      const loadModels = async () => {
+        if (!provider) return;
+        
+        setIsLoading(true);
+        try {
+          const { data: models } = await fetchModels(provider);
+          
+          setAvailableModels(models);
+          setFilteredModels(models);
+              
+          // If no model is selected, select the first available model
+          if (!model || model === "") {
+            onModelChange(models[0].id);
+          }
+          
+          // If provider has changed from the previous one, select the first model
+          // This prevents the loop by only reacting to actual provider changes
+          const providerHasChanged = prevProviderRef.current !== null && 
+                                    prevProviderRef.current !== provider;
+          
+          if (providerHasChanged && models.length > 0) {
+            onModelChange(models[0].id);
+          }
+          
+          // Update the previous provider ref
+          prevProviderRef.current = provider;
+        } catch (error) {
+          toast({
+            title: "Failed to load models",
+            description: "Could not load models for the selected provider",
+            variant: "destructive"
+          });
+          
+          setAvailableModels([]);
+          setFilteredModels([]);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      
+      loadModels();
+    }, [provider, onModelChange, model]); // Remove availableModels from dependencies
   // Get user avatar from supabase auth with limited retries
   useEffect(() => {
     const MAX_ATTEMPTS = 5;
@@ -172,7 +190,11 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
 
   // Helper function to get model display name
   const getModelDisplayName = () => {
-    if (!model) return isLoading ? "Loading..." : "Select model";
+    if (!model || model === "") {
+      if (isLoading) return "Loading...";
+      if (availableModels.length > 0) return availableModels[0].name;
+      return "Select model";
+    }
     
     // Try to find the model in available models
     const foundModel = availableModels.find(m => m.id === model);
@@ -182,23 +204,42 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
     return model;
   };
 
+  // Helper function to get provider display name
+  const getProviderDisplayName = () => {
+    if (!provider) {
+      return providers.length > 0 ? providers[0].name : "Provider";
+    }
+    return providers.find(p => p.id === provider)?.name || "Provider";
+  };
+
+  // Calculate effective values to ensure defaults are used consistently
+  const effectiveProvider = provider || (providers.length > 0 ? providers[0].id : "");
+  const effectiveModel = model || (availableModels.length > 0 ? availableModels[0].id : "");
+
   return (
     <div className="flex items-center justify-between gap-2 p-2">
       <div className="flex items-center gap-2">
         <Select 
-          value={provider} 
+          value={effectiveProvider}
           onValueChange={handleProviderChange}
           disabled={isGenerating || isLoading}
         >
           <SelectTrigger className={cn("w-[110px] h-8 text-xs bg-zinc-800 border-zinc-700/50 text-white", 
             (isGenerating || isLoading) && "opacity-70 cursor-not-allowed")}>
             <SelectValue placeholder="Provider">
-              {providers.find(p => p.id === provider)?.name || "Provider"}
+              {getProviderDisplayName()}
             </SelectValue>
           </SelectTrigger>
           <SelectContent className="bg-zinc-800 border-zinc-700">
             {providers.map(p => (
-              <SelectItem key={p.id} value={p.id} className="text-xs text-zinc-200">
+              <SelectItem 
+                key={p.id} 
+                value={p.id} 
+                className={cn(
+                  "text-xs text-zinc-200", 
+                  effectiveProvider === p.id && "bg-zinc-700"
+                )}
+              >
                 {p.name}
               </SelectItem>
             ))}
@@ -206,7 +247,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
         </Select>
 
         <Select 
-          value={model || ""} 
+          value={effectiveModel}
           onValueChange={onModelChange} 
           disabled={isLoading || filteredModels.length === 0 || isGenerating}
         >
@@ -249,7 +290,14 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
             <div className="max-h-[200px] overflow-y-auto">
               {filteredModels.length > 0 ? (
                 filteredModels.map(m => (
-                  <SelectItem key={m.id} value={m.id} className="text-xs text-zinc-200">
+                  <SelectItem 
+                    key={m.id} 
+                    value={m.id} 
+                    className={cn(
+                      "text-xs text-zinc-200",
+                      effectiveModel === m.id && "bg-zinc-700"
+                    )}
+                  >
                     {m.name}
                   </SelectItem>
                 ))
