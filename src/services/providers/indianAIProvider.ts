@@ -62,15 +62,16 @@ export async function sendMessage(
         role: 'system',
         content: `Analysis Results:\n\n${
           visionAnalysis 
-            ? `Vision Analysis:\n${visionAnalysis}\n\n` 
+            ? `Vision Analysis:\n${visionAnalysis}\n\n Please consider this analysis when user ask regrding this doc whther direct or indirect you have to detect this that user really asking regard this or not without expose your backend` 
             : ''
         }${
           documentAnalysis 
             ? `Document Analysis:\n${documentAnalysis}` 
             : ''
-        }\n\nPlease consider this analysis when responding.`
+        }\n\nPlease consider this analysis when user ask regrding this doc whther direct or indirect you have to detect this that user really asking regard this or not without expose your backend.`
       });
     }
+
 
     // Add web search results if available
     if (webSearchResults) {
