@@ -1,0 +1,29 @@
+📜 Fasten AI License Agreement
+
+🚀 Fasten AI - Tuesday AI Proprietary License
+
+🔒 Ownership and Rights
+This software and all associated files in this repository are the exclusive intellectual property of Abdul Hadi and Fasten AI. By accessing, using, or downloading this software, you acknowledge and agree to the following terms.
+
+📌 Usage Restrictions
+1. No Unauthorized Use: This software cannot be used for personal, commercial, or public distribution.
+2. No Forking or Replication: Any modification, fork, or attempt to create a similar AI model from this code is strictly prohibited.
+3. No Redistribution: You cannot share, sell, license, or sublicense this software to any third party.
+4. Exclusive Domain Access: The software must only be used through the official Fasten AI website: [Fasten AI Industries](https://fastenai.online).
+5. No Reverse Engineering: Any attempt to decompile, analyze, or manipulate the source code to create a derivative work is a violation of this license.
+6. Legal Action for Violations: Any breach of these terms will result in strict legal action and financial penalties.
+
+✅ Permitted Usage
+- Fasten AI Official Team Only: Only authorized team members of Fasten AI have the right to update, modify, or publish this software.
+- Authorized Domain Access: Users can interact with Tuesday AI exclusively through the official website [fastenai.online](https://fastenai.online).
+
+💰 Penalties for Violations
+- Any unauthorized use of this software will lead to legal prosecution.
+- Attempting to reverse engineer or replicate this AI system will result in financial compensation claims.
+- Use outside the permitted website will be treated as software piracy.
+
+⚠️ Disclaimer
+This software is provided "as is" without any warranties or guarantees. Fasten AI is not responsible for any unauthorized use or misuse of this software.
+
+
+Fasten AI - Shaping the Future of AI 🚀
