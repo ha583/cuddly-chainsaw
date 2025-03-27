@@ -21,7 +21,7 @@ Tuesday AI is an advanced AI assistant developed by **Abdul Hadi**, the CEO of *
 
 ### 1️⃣ Clone the Repository
 ```bash
-git clone https://github.com/ha583/TUESDAY-AI89
+git clone https://github.com/ha583/cuddly-chainsaw.git
 cd tuesday-ai
 ```
 
