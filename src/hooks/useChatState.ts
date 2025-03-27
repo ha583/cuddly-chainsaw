@@ -3,14 +3,14 @@ import { v4 as uuidv4 } from 'uuid';
 import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
 import { toast } from './use-toast';
-import { addChatMessage, createChatSession, getChatMessages, updateChatSessionTitle } from '@/services/chat';
+import { addChatMessage, createChatSession, getChatMessages} from '@/services/chat';
 import { sendMessage } from '@/services/aiProvider';
-import { processDocument, ProcessedDocument } from '@/services/documentProcessor';
+import { processDocument} from '@/services/documentProcessor';
 import { searchWeb } from '@/services/aiProvider';
 
 export const useChatState = (sessionId: string) => {
-  const [provider, setProvider] = useState<string>('openrouter');
-  const [model, setModel] = useState<string>('qwen/qwen-vl-plus:free');
+  const [provider, setProvider] = useState<string>('groq');
+  const [model, setModel] = useState<string>('gemma2-9b-it');
   const [webSearch, setWebSearch] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isThinking, setIsThinking] = useState<boolean>(false);
